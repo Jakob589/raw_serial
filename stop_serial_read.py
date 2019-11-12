@@ -1,2 +1,2 @@
-f = open("state", "w+")
-f.write("1")
+f = open("state.txt", "w+")
+f.write("0")
