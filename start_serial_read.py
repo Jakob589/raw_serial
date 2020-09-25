@@ -7,7 +7,6 @@ import sys
 import os
  
 
-
 def get_service(service_name):
 	cntr = 1
 	while True:
@@ -23,43 +22,44 @@ def get_service(service_name):
 				except socket.error:
 					pass
 		time.sleep(5)
-		cntr += 3
-		if cntr > 1:
+		cntr += 1
+		if cntr > 3:
 			print("Device not found, please try again. Check if PMC is connected to power.",end='')
 			exit()
 		
-		
-			
+
 #first start avahi-daemon with "service_name"
 service_name = "saam-pmc"
 ip = get_service(service_name)
 c = zerorpc.Client()
 c.connect("tcp://%s:4503" % ip)
 
+#turn off algortim that reads serial port on pmc
+c.NILMoff(" ")
+
 #state.txt tells us when to stop the program
-f2 = open("state.txt","r")
+f2 = open("state.txt","w")
 f2.write("1")
 status = 1
 
 #clear file
 f = open("data.csv","w+")
-f.write("")
 
 while status == 1:
 	if True:
 			try:
 				#c.read is zerorpc call
 				msg = c.read(" ")
-				print(msg,end='') #comment this line after debuging
-				f = open("data.csv","a") #maybe you dont need that line
 				f.write(msg)
-
+				
 			except:
-					print("corrupted data",end='')           
+				print("corrupted data",end='')           
+	
 	sys.stdout.flush()
 	time.sleep(.25)
 	f2 = open("state.txt","r")
 	status = int(f2.read())
+	f2.close()
 
 f.close()
-f2.close()
+c.NILMon(" ")
